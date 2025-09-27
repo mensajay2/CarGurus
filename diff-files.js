@@ -18,11 +18,12 @@ if (!START_FILE || !END_FILE) {
 
 let startData = [];
 let endData = [];
+let removedListings = []; // Listing in file 1 that is not present in file 2
 
 // Read start/base file
 try {
   const data = fs.readFileSync(START_FILE, "utf8");
-  startData = JSON.parse(data);
+  startData = JSON.parse(data).filter((carEntry) => carEntry.daysOnMarket <= DAYS_ON_MARKET_LIMIT);
 } catch (err) {
   console.error("Error reading or parsing file:", err);
 }
@@ -37,4 +38,24 @@ try {
 }
 
 console.log(`${START_FILE} has ${startData.length} entries that have been on the market less than ${DAYS_ON_MARKET_LIMIT} days`);
-console.log(`${END_FILE} has ${startData.length} entries that have been on the market less than ${DAYS_ON_MARKET_LIMIT} days`);
+console.log(`${END_FILE} has ${endData.length} total entries`);
+
+// Check if all VIN number objects are present 
+const carEntryMatch = (entry1, entry2) => entry1.vin === entry2.vin;
+
+startData.forEach(entry1 => {
+  //console.log(`\n${entry1.vin} - ${entry1.makeName} - ${entry1.modelName}`);
+  const entryIsPresent = endData.some((entry2) => carEntryMatch(entry1, entry2))
+  if(!entryIsPresent){
+    removedListings.push(entry1);
+  }
+});
+
+console.log(`${removedListings.length} listings were removed`);
+fs.writeFileSync('removedListings.json', JSON.stringify(removedListings, null, 4));
+
+/*
+startData.filter((entry1) => {
+  endData.some((entry2) => carEntryMatch(entry1, entry2))
+});
+*/
