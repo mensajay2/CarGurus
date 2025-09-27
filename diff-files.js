@@ -53,9 +53,3 @@ startData.forEach(entry1 => {
 
 console.log(`${removedListings.length} listings were removed`);
 fs.writeFileSync('removedListings.json', JSON.stringify(removedListings, null, 4));
-
-/*
-startData.filter((entry1) => {
-  endData.some((entry2) => carEntryMatch(entry1, entry2))
-});
-*/
